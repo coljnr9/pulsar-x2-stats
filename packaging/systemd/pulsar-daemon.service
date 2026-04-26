@@ -3,6 +3,7 @@ Description=Pulsar X2 daemon
 After=graphical-session.target
 
 [Service]
+Environment=RUST_LOG=info
 ExecStart=%h/.cargo/bin/pulsar-daemon daemon
 Restart=on-failure
 RestartSec=5
