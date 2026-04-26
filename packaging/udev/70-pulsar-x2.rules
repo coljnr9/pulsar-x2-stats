@@ -1,0 +1,7 @@
+# Grant the local logged-in user read/write access to the Pulsar X2 8K Dongle
+# via systemd-logind (uaccess). Install with:
+#
+#   sudo cp packaging/udev/70-pulsar-x2.rules /etc/udev/rules.d/
+#   sudo udevadm control --reload && sudo udevadm trigger
+#
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3710", ATTRS{idProduct}=="5406", MODE="0660", TAG+="uaccess"

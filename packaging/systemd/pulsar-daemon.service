@@ -1,0 +1,11 @@
+[Unit]
+Description=Pulsar X2 daemon
+After=graphical-session.target
+
+[Service]
+ExecStart=%h/.cargo/bin/pulsar-daemon daemon
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

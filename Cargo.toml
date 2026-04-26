@@ -1,0 +1,31 @@
+[package]
+name = "pulsar-daemon"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+hidapi = { version = "2.6", default-features = false, features = ["linux-static-libusb"] }
+tokio = { version = "1.43", features = ["rt-multi-thread", "macros", "net", "io-util", "time", "signal", "sync"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+clap = { version = "4.5", features = ["derive"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+thiserror = "2.0"
+parking_lot = "0.12"
+nix = { version = "0.29", features = ["signal", "user"] }
+libc = "0.2.186"
+axum = "0.8"
+tower-http = { version = "0.6", features = ["trace"] }
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+disallowed_methods = "deny"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[dev-dependencies]
+tempfile = "3.27.0"

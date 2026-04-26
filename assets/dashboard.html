@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulsar X2 Status</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --text-color: #e0e0e0;
+            --card-bg: #2a2a2a;
+            --accent-color: #00bcd4;
+            --critical-color: #f44336;
+            --sleep-color: #ff9800;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 24px;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 12px;
+        }
+
+        .status-banner {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .status-connected {
+            background-color: rgba(0, 188, 212, 0.2);
+            color: var(--accent-color);
+        }
+
+        .status-disconnected {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: var(--critical-color);
+        }
+
+        .status-sleep {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: var(--sleep-color);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #aaa;
+        }
+
+        .value {
+            text-align: right;
+            font-family: monospace;
+            font-size: 16px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Pulsar X2 Status</h1>
+    
+    <div id="status-banner" class="status-banner status-disconnected">Disconnected</div>
+
+    <div id="data-grid" class="grid hidden">
+        <div class="label">Battery</div>
+        <div class="value" id="val-battery">--</div>
+
+        <div class="label">Voltage</div>
+        <div class="value" id="val-voltage">--</div>
+
+        <div class="label">Charge State</div>
+        <div class="value" id="val-charge">--</div>
+
+        <div class="label">Polling Rate</div>
+        <div class="value" id="val-polling">--</div>
+
+        <div class="label">DPI Slot</div>
+        <div class="value" id="val-dpi">--</div>
+
+        <div class="label">Lift Off</div>
+        <div class="value" id="val-liftoff">--</div>
+
+        <div class="label">Debounce</div>
+        <div class="value" id="val-debounce">--</div>
+
+        <div class="label">Auto Sleep</div>
+        <div class="value" id="val-autosleep">--</div>
+
+        <div class="label">Motion Sync</div>
+        <div class="value" id="val-sync">--</div>
+    </div>
+</div>
+
+<script>
+    async function fetchData() {
+        try {
+            const response = await fetch('/state');
+            const data = await response.json();
+            updateUI(data);
+        } catch (error) {
+            console.error('Error fetching state:', error);
+            showDisconnected();
+        }
+    }
+
+    function showDisconnected() {
+        const banner = document.getElementById('status-banner');
+        banner.textContent = 'Disconnected';
+        banner.className = 'status-banner status-disconnected';
+        document.getElementById('data-grid').classList.add('hidden');
+    }
+
+    function updateUI(state) {
+        const banner = document.getElementById('status-banner');
+        const grid = document.getElementById('data-grid');
+
+        if (state.status === 'disconnected') {
+            showDisconnected();
+            return;
+        }
+
+        grid.classList.remove('hidden');
+
+        let snapshot;
+        if (state.status === 'connected') {
+            banner.textContent = 'Connected';
+            banner.className = 'status-banner status-connected';
+            snapshot = state.snapshot;
+        } else if (state.status === 'asleep') {
+            banner.textContent = '💤 Asleep';
+            banner.className = 'status-banner status-sleep';
+            snapshot = state.last_snapshot;
+        } else {
+            showDisconnected();
+            return;
+        }
+
+        document.getElementById('val-battery').textContent = `${snapshot.power.percent}%`;
+        document.getElementById('val-voltage').textContent = `${snapshot.power.voltage_mv} mV`;
+        
+        let chargeStr = 'Unknown';
+        if (snapshot.power.charge === 'discharging') chargeStr = 'Discharging';
+        if (snapshot.power.charge === 'charging') chargeStr = 'Charging';
+        if (typeof snapshot.power.charge === 'object' && snapshot.power.charge.other !== undefined) {
+            chargeStr = `Other (${snapshot.power.charge.other})`;
+        }
+        document.getElementById('val-charge').textContent = chargeStr;
+
+        let pollingStr = 'Unknown';
+        if (snapshot.settings.polling === 'hz1000') pollingStr = '1000 Hz';
+        if (snapshot.settings.polling === 'hz500') pollingStr = '500 Hz';
+        if (snapshot.settings.polling === 'hz250') pollingStr = '250 Hz';
+        if (snapshot.settings.polling === 'hz125') pollingStr = '125 Hz';
+        document.getElementById('val-polling').textContent = pollingStr;
+
+        document.getElementById('val-dpi').textContent = `${snapshot.settings.dpi_slot} / ${snapshot.settings.dpi_slot_count}`;
+
+        let liftoffStr = 'Unknown';
+        if (snapshot.settings.lift_off === 'mm1') liftoffStr = '1 mm';
+        if (snapshot.settings.lift_off === 'mm2') liftoffStr = '2 mm';
+        document.getElementById('val-liftoff').textContent = liftoffStr;
+
+        document.getElementById('val-debounce').textContent = `${snapshot.settings.debounce_ms} ms`;
+        document.getElementById('val-autosleep').textContent = `${snapshot.settings.auto_sleep_seconds} s`;
+        document.getElementById('val-sync').textContent = snapshot.settings.motion_sync ? 'On' : 'Off';
+    }
+
+    // Initial fetch
+    fetchData();
+
+    // Poll every 2 seconds
+    setInterval(fetchData, 2000);
+</script>
+
+</body>
+</html>

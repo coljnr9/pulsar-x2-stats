@@ -11,3 +11,7 @@ vm/
 .gemini/
 .claude/
 *.pcap
+
+# Added by cargo
+
+/target

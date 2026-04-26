@@ -1,0 +1,10 @@
+disallowed-methods = [
+    { path = "core::option::Option::unwrap_or", reason = "fabricates placeholder values; use match or `?`" },
+    { path = "core::option::Option::unwrap_or_else", reason = "fabricates placeholder values; use match or `?`" },
+    { path = "core::option::Option::unwrap_or_default", reason = "fabricates placeholder values; use match or `?`" },
+    { path = "core::option::Option::ok_or", reason = "use match or explicit error mapping" },
+    { path = "core::option::Option::ok_or_else", reason = "use match or explicit error mapping" },
+    { path = "core::result::Result::unwrap_or", reason = "fabricates placeholder values; use match or `?`" },
+    { path = "core::result::Result::unwrap_or_else", reason = "fabricates placeholder values; use match or `?`" },
+    { path = "core::result::Result::unwrap_or_default", reason = "fabricates placeholder values; use match or `?`" },
+]

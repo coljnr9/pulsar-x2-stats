@@ -1,0 +1,25 @@
+/* Append to your existing Waybar style.css. Adjust colors to taste. */
+
+#custom-pulsar {
+    padding: 0 10px;
+}
+
+#custom-pulsar.normal {
+    color: #cdd6f4;
+}
+
+#custom-pulsar.charging {
+    color: #a6e3a1;
+}
+
+#custom-pulsar.warning {
+    color: #f9e2af;
+}
+
+#custom-pulsar.critical {
+    color: #f38ba8;
+}
+
+#custom-pulsar.sleep {
+    color: #6c7086;
+}

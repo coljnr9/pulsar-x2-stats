@@ -1,0 +1,8 @@
+{
+    "custom/pulsar": {
+        "exec": "pulsar-daemon waybar",
+        "return-type": "json",
+        "interval": "once",
+        "signal": 8
+    }
+}
